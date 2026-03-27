@@ -59,12 +59,42 @@ Job information includes:
 
 Printed job IDs highlight the shortest prefix needed to specify the job. For commands requiring a job ID (e.g., `update`, `cancel`), you only need to provide a sufficient prefix as long as the prefix is longer than the highlighted portion. `laspcli` will resolve the ID automatically.
 
+### List
+
+The `list` command lists all availible models for the current user.
+Currently, there are two types of models:
+
+- GGNN model, the official model from laspai
+- GGNN-FT model, the finetuned model from the finetune job.
+
+For GGNN-FT model, a job ID is associated with it.
+You can declare that you want to use your finetuned model when submitting a job by specifying this ID in the configuration file.
+See [Configuration file](#configuration-file) for detail.
+
 ### Submit
 
 The `submit` command is similar to `sbatch` in [Slurm](https://slurm.schedmd.com/overview.html). It submits a job to [LASPAI](https://www.laspai.com).
 You can specify the path to the job directory; if omitted, the current directory is used.
 `laspcli` automatically detects the job type and submits it to [LASPAI](https://www.laspai.com).
 After submission, a `.lasp` directory is created in the job directory, marking it as a LASPAI job directory. Related information, including the job ID, is stored there. This directory is therefore bonded with the submitted job.
+
+#### Configuration file
+
+The `submit` command tries to find a `laspai.config` file in the job directory.
+The file contains necessary configurations for this job.
+If the file is not found, `laspcli` automatically writes a default config file.
+*DO NOT* modify most of the fields, as it is not yet supported for customization.
+We're actively developing the project to support more options.
+There are several fields that you can modify.
+
+##### Potential type
+
+To use your customized (finetuned) potential, simply modify the `model_type` field to "GGNN-FT" and `model_version` to the job ID of your finetune (or upload) job.
+The availible models and corresponding job IDs can be seen using the `list` command.
+See [List](#list) subcommand for details.
+Different from the [update](#update) and [cancel](#cancel) command, you must specify *full* job ID in the configuration file.
+If you specify a prefix of the ID, it might become ambiguous when you submit more jobs, even if it was the only prefix at the time you write the config file.
+As the job ID of the model won't be frequently modified, we decide to force you specifying the full job ID for your convenience in the future.
 
 #### Multiple jobs in one directory
 
